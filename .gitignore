@@ -1,0 +1,31 @@
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Frontend
+apps/frontend/node_modules/
+apps/frontend/dist/
+apps/frontend/.vite/
+
+# Backend
+apps/backend/.venv/
+apps/backend/staticfiles/
+apps/backend/media/
+apps/backend/**/__pycache__/
+apps/backend/**/*.pyc
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+
+# Docker volumes
+infra/docker/postgres-data/

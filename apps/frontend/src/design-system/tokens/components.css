@@ -1,0 +1,29 @@
+:root {
+  --layout-container-max: 80rem;
+  --layout-gutter: clamp(1.25rem, 1rem + 1vw, 2rem);
+  --layout-section-gap: clamp(3rem, 2.2rem + 3vw, 5.5rem);
+
+  --focus-ring-size: 0.25rem;
+
+  --component-button-height-sm: 2.5rem;
+  --component-button-height-md: 3rem;
+  --component-button-height-lg: 3.5rem;
+  --component-button-px-sm: 0.875rem;
+  --component-button-px-md: 1.125rem;
+  --component-button-px-lg: 1.375rem;
+  --component-button-gap: 0.5rem;
+
+  --component-input-height: 3.25rem;
+  --component-input-padding-inline: 1rem;
+  --component-input-radius: var(--radius-lg);
+
+  --component-card-padding: clamp(1.25rem, 1.1rem + 0.45vw, 1.75rem);
+  --component-card-radius: var(--radius-xl);
+  --component-card-gap: 1rem;
+
+  --component-badge-height: 1.75rem;
+  --component-badge-padding-inline: 0.75rem;
+
+  --component-page-header-gap: clamp(1.5rem, 1rem + 1vw, 2.5rem);
+  --component-page-header-max-width: 52rem;
+}

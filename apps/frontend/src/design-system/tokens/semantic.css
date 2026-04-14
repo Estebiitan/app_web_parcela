@@ -1,0 +1,149 @@
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-canvas: var(--primitive-color-neutral-50);
+  --color-panel: var(--primitive-color-neutral-0);
+  --color-panel-muted: var(--primitive-color-forest-50);
+  --color-panel-elevated: var(--primitive-color-neutral-0);
+  --color-panel-inverse: var(--primitive-color-neutral-900);
+
+  --color-text-primary: var(--primitive-color-neutral-900);
+  --color-text-secondary: var(--primitive-color-neutral-700);
+  --color-text-tertiary: var(--primitive-color-neutral-500);
+  --color-text-inverse: var(--primitive-color-neutral-50);
+
+  --color-border-soft: var(--primitive-color-neutral-200);
+  --color-border-strong: var(--primitive-color-neutral-300);
+  --color-border-inverse: var(--primitive-color-neutral-700);
+
+  --color-accent: var(--primitive-color-forest-500);
+  --color-accent-emphasis: var(--primitive-color-forest-600);
+  --color-accent-soft: var(--primitive-color-forest-100);
+  --color-accent-contrast: var(--primitive-color-neutral-0);
+
+  --color-success: var(--primitive-color-forest-500);
+  --color-success-soft: var(--primitive-color-forest-100);
+  --color-warning: var(--primitive-color-amber-500);
+  --color-warning-soft: var(--primitive-color-amber-100);
+  --color-danger: var(--primitive-color-rose-500);
+  --color-danger-soft: var(--primitive-color-rose-100);
+  --color-info: var(--primitive-color-ocean-500);
+  --color-info-soft: var(--primitive-color-ocean-100);
+
+  --color-focus-ring: var(--primitive-color-forest-400);
+
+  --background-canvas:
+    linear-gradient(
+      180deg,
+      rgb(var(--primitive-color-neutral-0)) 0%,
+      rgb(var(--primitive-color-neutral-50)) 42%,
+      rgb(var(--primitive-color-forest-50)) 100%
+    );
+  --background-grid:
+    linear-gradient(to right, rgb(var(--primitive-color-neutral-0) / 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--primitive-color-neutral-0) / 0.5) 1px, transparent 1px);
+  --background-glow:
+    radial-gradient(circle at 18% 10%, rgb(var(--primitive-color-forest-100) / 0.9), transparent 34%),
+    radial-gradient(circle at 82% 12%, rgb(var(--primitive-color-ocean-100) / 0.65), transparent 24%);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-canvas: 12 16 17;
+  --color-panel: 18 24 25;
+  --color-panel-muted: 23 32 30;
+  --color-panel-elevated: 26 36 35;
+  --color-panel-inverse: var(--primitive-color-neutral-50);
+
+  --color-text-primary: 242 244 239;
+  --color-text-secondary: 198 205 196;
+  --color-text-tertiary: 145 154 146;
+  --color-text-inverse: 17 20 18;
+
+  --color-border-soft: 49 59 57;
+  --color-border-strong: 77 90 88;
+  --color-border-inverse: 212 220 211;
+
+  --color-accent: 132 188 105;
+  --color-accent-emphasis: 151 206 123;
+  --color-accent-soft: 34 53 36;
+  --color-accent-contrast: 15 19 15;
+
+  --color-success: 132 188 105;
+  --color-success-soft: 34 53 36;
+  --color-warning: 240 178 75;
+  --color-warning-soft: 70 49 16;
+  --color-danger: 233 123 128;
+  --color-danger-soft: 66 28 31;
+  --color-info: 112 180 220;
+  --color-info-soft: 26 47 61;
+
+  --color-focus-ring: 157 214 131;
+
+  --background-canvas:
+    linear-gradient(
+      180deg,
+      rgb(12 16 17) 0%,
+      rgb(14 19 20) 48%,
+      rgb(12 18 17) 100%
+    );
+  --background-grid:
+    linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+  --background-glow:
+    radial-gradient(circle at 18% 10%, rgb(50 86 56 / 0.38), transparent 34%),
+    radial-gradient(circle at 84% 12%, rgb(34 67 84 / 0.32), transparent 26%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    color-scheme: dark;
+
+    --color-canvas: 12 16 17;
+    --color-panel: 18 24 25;
+    --color-panel-muted: 23 32 30;
+    --color-panel-elevated: 26 36 35;
+    --color-panel-inverse: var(--primitive-color-neutral-50);
+
+    --color-text-primary: 242 244 239;
+    --color-text-secondary: 198 205 196;
+    --color-text-tertiary: 145 154 146;
+    --color-text-inverse: 17 20 18;
+
+    --color-border-soft: 49 59 57;
+    --color-border-strong: 77 90 88;
+    --color-border-inverse: 212 220 211;
+
+    --color-accent: 132 188 105;
+    --color-accent-emphasis: 151 206 123;
+    --color-accent-soft: 34 53 36;
+    --color-accent-contrast: 15 19 15;
+
+    --color-success: 132 188 105;
+    --color-success-soft: 34 53 36;
+    --color-warning: 240 178 75;
+    --color-warning-soft: 70 49 16;
+    --color-danger: 233 123 128;
+    --color-danger-soft: 66 28 31;
+    --color-info: 112 180 220;
+    --color-info-soft: 26 47 61;
+
+    --color-focus-ring: 157 214 131;
+
+    --background-canvas:
+      linear-gradient(
+        180deg,
+        rgb(12 16 17) 0%,
+        rgb(14 19 20) 48%,
+        rgb(12 18 17) 100%
+      );
+    --background-grid:
+      linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    --background-glow:
+      radial-gradient(circle at 18% 10%, rgb(50 86 56 / 0.38), transparent 34%),
+      radial-gradient(circle at 84% 12%, rgb(34 67 84 / 0.32), transparent 26%);
+  }
+}

@@ -27,5 +27,8 @@ apps/backend/**/*.pyc
 .pytest_cache/
 .mypy_cache/
 
+# Local runtime logs
+logs/
+
 # Docker volumes
 infra/docker/postgres-data/

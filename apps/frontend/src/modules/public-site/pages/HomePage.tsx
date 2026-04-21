@@ -10,8 +10,8 @@ import {
 } from '@/design-system'
 import { PropertyQuickFacts } from '@/modules/public-site/components/PropertyQuickFacts'
 import { PropertyVisualGallery } from '@/modules/public-site/components/PropertyVisualGallery'
+import { PricingSection } from '@/modules/public-site/components/PricingSection'
 import { usePropertyInfo } from '@/modules/public-site/hooks/usePropertyInfo'
-import { formatCurrency } from '@/shared/lib/format'
 import { FeedbackPanel } from '@/shared/ui/FeedbackPanel'
 import { KeyValueList } from '@/shared/ui/KeyValueList'
 import { LinkButton } from '@/shared/ui/LinkButton'
@@ -55,6 +55,13 @@ const valueBlocks = [
 
 export function HomePage() {
   const { data: property, error, isLoading, reload } = usePropertyInfo()
+
+  function scrollToPublicContact() {
+    document.getElementById('contacto-publico')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
+  }
 
   return (
     <div className="pb-16">
@@ -123,7 +130,7 @@ export function HomePage() {
           <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
             <Card>
               <CardHeader>
-                <CardTitle>Descripcion, ubicacion y tarifa base</CardTitle>
+                <CardTitle>Descripcion y ubicacion</CardTitle>
                 <CardDescription>
                   Informacion tomada del registro publico activo de la parcela.
                 </CardDescription>
@@ -149,15 +156,17 @@ export function HomePage() {
                       value: property.address || 'No configurada',
                     },
                     {
-                      label: 'Tarifa base diaria',
-                      value: formatCurrency(property.base_daily_price, property.currency),
+                      label: 'Capacidad maxima configurada',
+                      value: property.max_guest_count
+                        ? `${property.max_guest_count} personas`
+                        : 'No configurada',
                     },
                   ]}
                 />
               </CardContent>
             </Card>
 
-            <Card>
+            <Card id="contacto-publico">
               <CardHeader>
                 <CardTitle>Servicios, contacto y siguientes pasos</CardTitle>
                 <CardDescription>
@@ -205,6 +214,8 @@ export function HomePage() {
         </Section>
       ) : null}
 
+      <PricingSection onScheduleVisit={scrollToPublicContact} />
+
       <Section
         description="El recorrido ya esta definido sobre la API actual del producto y no depende de login para la primera interaccion."
         title="Que puede hacer un usuario invitado hoy"
@@ -220,48 +231,6 @@ export function HomePage() {
           ))}
         </div>
       </Section>
-
-      {property ? (
-        <Section
-          actions={
-            <>
-              <LinkButton to="/disponibilidad" variant="secondary">
-                Explorar fechas
-              </LinkButton>
-              <LinkButton to="/seguimiento" variant="ghost">
-                Consultar mi reserva
-              </LinkButton>
-            </>
-          }
-          description="La V1 del producto privilegia claridad operacional: evitar sobre-reservas, ordenar comprobantes y hacer visible el estado de cada solicitud."
-          title={`Desde ${formatCurrency(property.base_daily_price, property.currency)} por dia base`}
-        >
-          <Card>
-            <CardContent className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-tertiary">
-                  Ubicacion
-                </p>
-                <p className="text-lg leading-8 text-text-primary">
-                  {property.location_name || property.address || 'Ubicacion por confirmar'}
-                </p>
-                <p className="max-w-2xl text-sm leading-7 text-text-secondary">
-                  {property.short_description || 'Sin descripcion publica configurada todavia.'}
-                </p>
-              </div>
-              <div className="rounded-[1.75rem] border border-border-soft bg-panel-muted p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-tertiary">
-                  Contacto publico
-                </p>
-                <div className="mt-4 space-y-3 text-sm leading-7 text-text-primary">
-                  <p>{property.contact_email || 'Correo no configurado'}</p>
-                  <p>{property.contact_phone || 'Telefono no configurado'}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Section>
-      ) : null}
     </div>
   )
 }

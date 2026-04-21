@@ -1,15 +1,36 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, PageHeader, Section, Textarea } from '@/design-system'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  PageHeader,
+  Section,
+  Textarea,
+} from '@/design-system'
+import { publicPricingRules } from '@/modules/public-site/pricing/pricingRules'
+import { usePropertyInfo } from '@/modules/public-site/hooks/usePropertyInfo'
 import {
   createGuestReservation,
   type GuestReservationCreatePayload,
 } from '@/modules/reservations/api/reservationsApi'
+import {
+  buildReservationIntentMessage,
+  parseReservationPricingIntent,
+  type ReservationLocationState,
+  type ReservationPricingIntent,
+} from '@/modules/reservations/lib/reservationIntent'
 import { saveGuestReservationAccess } from '@/modules/reservations/lib/guestReservationAccessStore'
-import { usePropertyInfo } from '@/modules/public-site/hooks/usePropertyInfo'
 import { getApiErrorMessage } from '@/shared/api/http'
+import { formatCurrency } from '@/shared/lib/format'
 import { FeedbackPanel } from '@/shared/ui/FeedbackPanel'
+import { KeyValueList } from '@/shared/ui/KeyValueList'
 
 type ReservationFormState = {
   contactName: string
@@ -23,15 +44,30 @@ type ReservationFormState = {
 
 type ReservationFormErrors = Partial<Record<keyof ReservationFormState, string>>
 
-function getInitialFormState(startDate = '', endDate = ''): ReservationFormState {
+function formatAdditionalHoursLabel(additionalHours: number) {
+  if (additionalHours === 0) {
+    return 'Sin horas adicionales'
+  }
+
+  return `${additionalHours} hora${additionalHours === 1 ? '' : 's'}`
+}
+
+function getInitialFormState({
+  customerMessage = '',
+  endDate = '',
+  guestCount = String(publicPricingRules.minimumGuestCount),
+  startDate = '',
+}: Partial<
+  Pick<ReservationFormState, 'customerMessage' | 'endDate' | 'guestCount' | 'startDate'>
+> = {}): ReservationFormState {
   return {
     contactName: '',
     contactEmail: '',
     contactPhone: '',
     startDate,
     endDate,
-    guestCount: '1',
-    customerMessage: '',
+    guestCount,
+    customerMessage,
   }
 }
 
@@ -45,41 +81,85 @@ function validateReservationForm(
     errors.contactName = 'Ingresa un nombre de contacto.'
   }
   if (!formState.contactEmail.trim()) {
-    errors.contactEmail = 'Ingresa un correo electrónico.'
+    errors.contactEmail = 'Ingresa un correo electronico.'
   }
   if (!formState.startDate) {
     errors.startDate = 'Selecciona una fecha de inicio.'
   }
   if (!formState.endDate) {
-    errors.endDate = 'Selecciona una fecha de término.'
+    errors.endDate = 'Selecciona una fecha de termino.'
   }
   if (
     formState.startDate &&
     formState.endDate &&
     new Date(formState.endDate) < new Date(formState.startDate)
   ) {
-    errors.endDate = 'La fecha de término no puede ser anterior a la de inicio.'
+    errors.endDate = 'La fecha de termino no puede ser anterior a la de inicio.'
   }
 
   const guestCount = Number(formState.guestCount)
-  if (!formState.guestCount || Number.isNaN(guestCount) || guestCount < 1) {
-    errors.guestCount = 'Indica una cantidad válida de asistentes.'
+  if (
+    !formState.guestCount ||
+    Number.isNaN(guestCount) ||
+    guestCount < publicPricingRules.minimumGuestCount
+  ) {
+    errors.guestCount = `Indica al menos ${publicPricingRules.minimumGuestCount} asistentes.`
   } else if (maxGuestCount && guestCount > maxGuestCount) {
-    errors.guestCount = `La parcela acepta hasta ${maxGuestCount} personas en la configuración actual.`
+    errors.guestCount = `La parcela acepta hasta ${maxGuestCount} personas en la configuracion actual.`
   }
 
   return errors
 }
 
+function PricingIntentSummary({ pricingIntent }: { pricingIntent: ReservationPricingIntent }) {
+  return (
+    <div className="mb-5 rounded-[1.5rem] border border-accent/20 bg-accent-soft/55 px-5 py-5">
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Badge tone="success">Tomado del simulador</Badge>
+        <Badge tone="neutral">Total estimado {formatCurrency(pricingIntent.totalPrice)}</Badge>
+      </div>
+      <KeyValueList
+        items={[
+          {
+            label: 'Asistentes fijados',
+            value: `${pricingIntent.guestCount} personas`,
+          },
+          {
+            label: 'Horas adicionales solicitadas',
+            value: formatAdditionalHoursLabel(pricingIntent.additionalHours),
+          },
+          {
+            label: 'Abono informado',
+            value: formatCurrency(pricingIntent.depositAmount),
+          },
+        ]}
+      />
+    </div>
+  )
+}
+
 export function GuestReservationRequestPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
+  const pricingIntent = useMemo(
+    () =>
+      parseReservationPricingIntent(
+        searchParams,
+        location.state as ReservationLocationState,
+      ),
+    [location.state, searchParams],
+  )
   const { data: property } = usePropertyInfo()
   const [formState, setFormState] = useState(() =>
-    getInitialFormState(
-      searchParams.get('start_date') || '',
-      searchParams.get('end_date') || '',
-    ),
+    getInitialFormState({
+      customerMessage: pricingIntent ? buildReservationIntentMessage(pricingIntent) : '',
+      endDate: searchParams.get('end_date') || '',
+      guestCount: pricingIntent
+        ? String(pricingIntent.guestCount)
+        : searchParams.get('guest_count') || String(publicPricingRules.minimumGuestCount),
+      startDate: searchParams.get('start_date') || '',
+    }),
   )
   const [formErrors, setFormErrors] = useState<ReservationFormErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -87,9 +167,9 @@ export function GuestReservationRequestPage() {
 
   const infoItems = useMemo(
     () => [
-      'La solicitud se envía sin necesidad de crear cuenta.',
-      'Al finalizar recibirás un identificador y token de seguimiento.',
-      'Con esas credenciales podrás revisar el estado y subir comprobantes.',
+      'La solicitud se envia sin necesidad de crear cuenta.',
+      'Al finalizar recibiras un identificador y token de seguimiento.',
+      'Con esas credenciales podras revisar el estado y subir comprobantes.',
     ],
     [],
   )
@@ -142,9 +222,9 @@ export function GuestReservationRequestPage() {
   return (
     <div className="pb-16">
       <PageHeader
-        description="Completa la solicitud invitada. La reserva queda registrada en la API real y recibirás las credenciales para seguir el proceso sin login."
+        description="Completa la solicitud invitada. Si vienes desde el simulador, tus personas y horas adicionales quedan comunicadas en esta solicitud."
         eyebrow="Solicitud de reserva"
-        title="Envía tu solicitud sin crear cuenta"
+        title="Envia tu solicitud sin crear cuenta"
       />
 
       <Section
@@ -155,8 +235,16 @@ export function GuestReservationRequestPage() {
           <Card>
             <CardHeader>
               <CardTitle>Completa tu solicitud</CardTitle>
+              {pricingIntent ? (
+                <CardDescription>
+                  Precargamos la cantidad de asistentes y el detalle del simulador para evitar
+                  errores al enviar.
+                </CardDescription>
+              ) : null}
             </CardHeader>
             <CardContent>
+              {pricingIntent ? <PricingIntentSummary pricingIntent={pricingIntent} /> : null}
+
               <form className="grid gap-5" onSubmit={handleSubmit}>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Input
@@ -170,7 +258,7 @@ export function GuestReservationRequestPage() {
                   <Input
                     error={formErrors.contactEmail}
                     id="reservation-contact-email"
-                    label="Correo electrónico"
+                    label="Correo electronico"
                     onChange={(event) => updateField('contactEmail', event.target.value)}
                     required
                     type="email"
@@ -181,7 +269,7 @@ export function GuestReservationRequestPage() {
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Input
                     id="reservation-contact-phone"
-                    label="Teléfono"
+                    label="Telefono"
                     onChange={(event) => updateField('contactPhone', event.target.value)}
                     value={formState.contactPhone}
                   />
@@ -197,7 +285,7 @@ export function GuestReservationRequestPage() {
                   <Input
                     error={formErrors.endDate}
                     id="reservation-end-date"
-                    label="Fecha de término"
+                    label="Fecha de termino"
                     onChange={(event) => updateField('endDate', event.target.value)}
                     required
                     type="date"
@@ -209,12 +297,12 @@ export function GuestReservationRequestPage() {
                   error={formErrors.guestCount}
                   hint={
                     property?.max_guest_count
-                      ? `Capacidad máxima configurada: ${property.max_guest_count} personas.`
-                      : 'La capacidad máxima aún no está informada.'
+                      ? `Capacidad maxima configurada: ${property.max_guest_count} personas.`
+                      : `Minimo comercial del simulador: ${publicPricingRules.minimumGuestCount} personas.`
                   }
                   id="reservation-guest-count"
                   label="Cantidad de asistentes"
-                  min={1}
+                  min={publicPricingRules.minimumGuestCount}
                   onChange={(event) => updateField('guestCount', event.target.value)}
                   required
                   type="number"
@@ -222,11 +310,15 @@ export function GuestReservationRequestPage() {
                 />
 
                 <Textarea
-                  hint="Puedes dejar contexto sobre el tipo de actividad o alguna duda previa."
+                  hint={
+                    pricingIntent
+                      ? 'Este mensaje ya incluye el resumen del simulador. Puedes agregar mas contexto si lo necesitas.'
+                      : 'Puedes dejar contexto sobre el tipo de actividad o alguna duda previa.'
+                  }
                   id="reservation-message"
                   label="Mensaje opcional"
                   onChange={(event) => updateField('customerMessage', event.target.value)}
-                  placeholder="Ejemplo: reunión familiar, necesidad de horario especial, dudas sobre capacidad..."
+                  placeholder="Ejemplo: reunion familiar, necesidad de horario especial, dudas sobre capacidad..."
                   value={formState.customerMessage}
                 />
 
@@ -249,7 +341,7 @@ export function GuestReservationRequestPage() {
           <div className="grid gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Qué ocurrirá después</CardTitle>
+                <CardTitle>Que ocurrira despues</CardTitle>
               </CardHeader>
               <CardContent className="gap-4">
                 {infoItems.map((item, index) => (
@@ -268,7 +360,7 @@ export function GuestReservationRequestPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Datos tomados desde la API pública</CardTitle>
+                <CardTitle>Datos tomados desde la API publica</CardTitle>
               </CardHeader>
               <CardContent className="gap-3 text-sm leading-7 text-text-secondary">
                 <p>
@@ -278,7 +370,9 @@ export function GuestReservationRequestPage() {
                 <p>
                   Capacidad:{' '}
                   <span className="text-text-primary">
-                    {property?.max_guest_count ? `${property.max_guest_count} personas` : 'No informada'}
+                    {property?.max_guest_count
+                      ? `${property.max_guest_count} personas`
+                      : 'No informada'}
                   </span>
                 </p>
                 <p>

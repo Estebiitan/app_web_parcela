@@ -131,6 +131,24 @@
     outline: none;
     box-shadow: 0 0 0 var(--focus-ring-size) rgb(var(--color-focus-ring) / 0.42);
   }
+
+  .gallery-reveal {
+    animation: gallery-reveal var(--motion-duration-settle) var(--motion-ease-decelerated) both;
+  }
+}
+
+@keyframes gallery-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.018);
+    filter: saturate(0.92) blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: saturate(1) blur(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

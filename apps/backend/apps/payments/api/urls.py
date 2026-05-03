@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ClientPaymentReceiptCreateView, PublicPaymentReceiptCreateView
+from .views import AdminPaymentReceiptCreateView, ClientPaymentReceiptCreateView, PublicPaymentReceiptCreateView
 
 urlpatterns = [
     path(
@@ -12,5 +12,10 @@ urlpatterns = [
         'client/reservations/<uuid:reservation_public_id>/payment-receipts/',
         ClientPaymentReceiptCreateView.as_view(),
         name='client-payment-receipt-create',
+    ),
+    path(
+        'admin/reservations/<uuid:reservation_public_id>/payment-receipts/',
+        AdminPaymentReceiptCreateView.as_view(),
+        name='admin-payment-receipt-create',
     ),
 ]

@@ -5,6 +5,13 @@ from django.db import models
 from django.db.models import Q
 
 from apps.common.models import BaseModel
+from apps.properties.defaults import (
+    default_experience_cards,
+    default_gallery_images,
+    default_hero_gallery_image_ids,
+    default_location_map,
+    default_pricing_rules,
+)
 
 
 class PropertyInfoQuerySet(models.QuerySet):
@@ -30,6 +37,11 @@ class PropertyInfo(BaseModel):
     contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(max_length=30, blank=True)
     amenities = models.JSONField(default=list, blank=True)
+    pricing_rules = models.JSONField(default=default_pricing_rules, blank=True)
+    experience_cards = models.JSONField(default=default_experience_cards, blank=True)
+    gallery_images = models.JSONField(default=default_gallery_images, blank=True)
+    hero_gallery_image_ids = models.JSONField(default=default_hero_gallery_image_ids, blank=True)
+    location_map = models.JSONField(default=default_location_map, blank=True)
     is_active = models.BooleanField(default=True)
 
     objects = PropertyInfoQuerySet.as_manager()
@@ -63,4 +75,3 @@ class PropertyInfo(BaseModel):
 
     def __str__(self):
         return self.name
-

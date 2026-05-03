@@ -10,7 +10,7 @@ from apps.payments.api.serializers import PaymentReceiptCreateSerializer, Paymen
 from apps.payments.services import submit_payment_receipt
 from apps.reservations.models import Reservation
 from apps.reservations.services import validate_guest_reservation_access
-from apps.users.permissions import IsClientRole
+from apps.users.permissions import IsAdminRole, IsClientRole
 
 
 def _get_reservation_access_token(request):
@@ -77,6 +77,35 @@ class ClientPaymentReceiptCreateView(APIView):
             Reservation.objects.all(),
             public_id=reservation_public_id,
             customer=request.user,
+        )
+        serializer = PaymentReceiptCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        receipt = submit_payment_receipt(
+            reservation=reservation,
+            uploaded_by=request.user,
+            validated_data=serializer.validated_data,
+        )
+        response_serializer = PaymentReceiptDetailSerializer(receipt, context={'request': request})
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(
+    tags=['Admin Payments'],
+    summary='Upload payment receipt manually for a reservation',
+    request=PaymentReceiptCreateSerializer,
+    responses={
+        201: PaymentReceiptDetailSerializer,
+        409: OpenApiResponse(description='Reservation state conflicts with payment receipt upload.'),
+    },
+)
+class AdminPaymentReceiptCreateView(APIView):
+    permission_classes = [IsAdminRole]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, reservation_public_id):
+        reservation = get_object_or_404(
+            Reservation.objects.select_related('customer'),
+            public_id=reservation_public_id,
         )
         serializer = PaymentReceiptCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

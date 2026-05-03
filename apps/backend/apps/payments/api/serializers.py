@@ -12,12 +12,14 @@ class PaymentReceiptCreateSerializer(serializers.Serializer):
 
 
 class PaymentReceiptDetailSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
     uploaded_by_email = serializers.EmailField(source='uploaded_by.email', read_only=True)
 
     class Meta:
         model = PaymentReceipt
         fields = (
             'public_id',
+            'file_url',
             'amount',
             'currency',
             'payment_date',
@@ -30,3 +32,12 @@ class PaymentReceiptDetailSerializer(serializers.ModelSerializer):
             'created_at',
         )
 
+    def get_file_url(self, obj):
+        if not obj.file:
+            return ''
+
+        request = self.context.get('request')
+        file_url = obj.file.url
+        if request:
+            return request.build_absolute_uri(file_url)
+        return file_url

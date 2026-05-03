@@ -36,6 +36,6 @@ class PropertyInfoAdmin(admin.ModelAdmin):
             },
         ),
         ('Contact', {'fields': ('contact_email', 'contact_phone', 'amenities')}),
+        ('Public map', {'fields': ('location_map',)}),
         ('Audit', {'fields': ('created_at', 'updated_at')}),
     )
-

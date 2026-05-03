@@ -4,7 +4,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 urlpatterns = [
     path('', include('apps.common.api.urls')),
     path('auth/', include('apps.users.api.urls')),
-    path('public/', include('apps.properties.api.urls')),
+    path('', include('apps.properties.api.urls')),
     path('', include('apps.reservations.api.urls')),
     path('', include('apps.payments.api.urls')),
     path('', include('apps.availability.api.urls')),

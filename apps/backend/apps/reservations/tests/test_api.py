@@ -6,6 +6,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from apps.availability.models import BlockedDate
+from apps.payments.models import PaymentReceipt
 from apps.properties.models import PropertyInfo
 from apps.reservations.models import Reservation, ReservationGuestAccess, ReservationStatus
 from apps.users.models import User
@@ -189,6 +190,12 @@ class ReservationApiTests(TestCase):
             quoted_total_amount=Decimal('85000.00'),
             currency='CLP',
         )
+        receipt = PaymentReceipt.objects.create(
+            reservation=reservation,
+            uploaded_by=self.client_user,
+            file=SimpleUploadedFile('receipt.txt', b'payment-proof', content_type='text/plain'),
+            amount=Decimal('85000.00'),
+        )
 
         self.client_api.force_authenticate(self.admin_user)
         response = self.client_api.post(
@@ -198,6 +205,41 @@ class ReservationApiTests(TestCase):
         )
 
         reservation.refresh_from_db()
+        receipt.refresh_from_db()
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(reservation.status, ReservationStatus.CONFIRMED)
+        self.assertEqual(receipt.review_status, PaymentReceipt.ReviewStatus.APPROVED)
+
+    def test_admin_can_upload_manual_payment_receipt(self):
+        reservation = Reservation.objects.create(
+            customer=self.client_user,
+            start_date=date(2026, 6, 8),
+            end_date=date(2026, 6, 8),
+            guest_count=4,
+            status=ReservationStatus.AWAITING_PAYMENT,
+            quoted_total_amount=Decimal('85000.00'),
+            currency='CLP',
+        )
+
+        self.client_api.force_authenticate(self.admin_user)
+        response = self.client_api.post(
+            f'/api/v1/admin/reservations/{reservation.public_id}/payment-receipts/',
+            {
+                'file': SimpleUploadedFile('whatsapp-receipt.txt', b'payment-proof', content_type='text/plain'),
+                'amount': '85000.00',
+                'payment_date': '2026-05-25',
+                'reference_number': 'WA-123',
+                'notes': 'Comprobante recibido por WhatsApp.',
+            },
+        )
+
+        reservation.refresh_from_db()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(reservation.status, ReservationStatus.PAYMENT_SUBMITTED)
+        self.assertEqual(reservation.payment_receipts.count(), 1)
+        self.assertEqual(
+            reservation.payment_receipts.first().review_status,
+            PaymentReceipt.ReviewStatus.PENDING_REVIEW,
+        )

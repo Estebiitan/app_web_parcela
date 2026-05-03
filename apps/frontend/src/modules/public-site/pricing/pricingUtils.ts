@@ -66,3 +66,10 @@ export function calculateTotalPrice(
     normalizeAdditionalHours(additionalHours, rules) * rules.additionalHourPrice
   )
 }
+
+export function calculateDepositAmount(
+  totalPrice: number,
+  rules: PublicPricingRules = publicPricingRules,
+) {
+  return Math.round(totalPrice * rules.depositRate)
+}

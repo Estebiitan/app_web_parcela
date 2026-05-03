@@ -1,4 +1,4 @@
-const fallbackApiBaseUrl = 'http://localhost:8000/api/v1'
+const fallbackApiBaseUrl = 'http://127.0.0.1:8000/api/v1'
 
 export const env = {
   appName: import.meta.env.VITE_APP_NAME || 'app_web_parcela',

@@ -219,12 +219,24 @@ def approve_reservation(*, reservation, actor, comment=''):
             comment=comment or 'Reservation approved and waiting for payment receipt.',
         )
     if reservation.status == ReservationStatus.PAYMENT_SUBMITTED:
-        return change_reservation_status(
+        confirmed_reservation = change_reservation_status(
             reservation=reservation,
             to_status=ReservationStatus.CONFIRMED,
             actor=actor,
             comment=comment or 'Reservation payment approved and reservation confirmed.',
         )
+        from apps.payments.models import PaymentReceipt
+
+        PaymentReceipt.objects.filter(
+            reservation=confirmed_reservation,
+            review_status=PaymentReceipt.ReviewStatus.PENDING_REVIEW,
+        ).update(
+            review_status=PaymentReceipt.ReviewStatus.APPROVED,
+            review_notes=comment or 'Payment receipt approved during reservation confirmation.',
+            reviewed_by=actor,
+            reviewed_at=timezone.now(),
+        )
+        return confirmed_reservation
 
     raise serializers.ValidationError(
         {'status': f'Reservation cannot be approved from status {reservation.status}.'}
@@ -232,10 +244,24 @@ def approve_reservation(*, reservation, actor, comment=''):
 
 
 def reject_reservation(*, reservation, actor, reason, comment=''):
-    return change_reservation_status(
+    previous_status = reservation.status
+    rejected_reservation = change_reservation_status(
         reservation=reservation,
         to_status=ReservationStatus.REJECTED,
         actor=actor,
         comment=comment or 'Reservation rejected by administration.',
         status_reason=reason,
     )
+    if previous_status == ReservationStatus.PAYMENT_SUBMITTED:
+        from apps.payments.models import PaymentReceipt
+
+        PaymentReceipt.objects.filter(
+            reservation=rejected_reservation,
+            review_status=PaymentReceipt.ReviewStatus.PENDING_REVIEW,
+        ).update(
+            review_status=PaymentReceipt.ReviewStatus.REJECTED,
+            review_notes=reason,
+            reviewed_by=actor,
+            reviewed_at=timezone.now(),
+        )
+    return rejected_reservation

@@ -166,7 +166,11 @@ class AdminReservationListView(generics.ListAPIView):
     permission_classes = [IsAdminRole]
 
     def get_queryset(self):
-        return Reservation.objects.select_related('customer').order_by('-created_at')
+        return (
+            Reservation.objects.select_related('customer')
+            .prefetch_related('payment_receipts')
+            .order_by('-created_at')
+        )
 
 
 @extend_schema(
@@ -180,7 +184,7 @@ class AdminReservationDetailView(generics.RetrieveAPIView):
     lookup_field = 'public_id'
 
     def get_queryset(self):
-        return Reservation.objects.select_related('customer').prefetch_related(
+        return Reservation.objects.select_related('customer', 'guest_access').prefetch_related(
             'status_history',
             'payment_receipts',
         )

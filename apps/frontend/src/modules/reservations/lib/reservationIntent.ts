@@ -1,6 +1,7 @@
-import { publicPricingRules } from '@/modules/public-site/pricing/pricingRules'
+import { publicPricingRules, type PublicPricingRules } from '@/modules/public-site/pricing/pricingRules'
 import {
   calculateBasePrice,
+  calculateDepositAmount,
   calculateTotalPrice,
   normalizeAdditionalHours,
   normalizeVisibleGuestCount,
@@ -24,11 +25,13 @@ export type ReservationLocationState = {
 export function createReservationPricingIntent(
   guestCount: number,
   additionalHours: number,
+  pricingRules: PublicPricingRules = publicPricingRules,
 ): ReservationPricingIntent {
-  const normalizedGuestCount = normalizeVisibleGuestCount(guestCount)
-  const normalizedAdditionalHours = normalizeAdditionalHours(additionalHours)
-  const basePrice = calculateBasePrice(normalizedGuestCount)
-  const additionalHoursAmount = normalizedAdditionalHours * publicPricingRules.additionalHourPrice
+  const normalizedGuestCount = normalizeVisibleGuestCount(guestCount, pricingRules)
+  const normalizedAdditionalHours = normalizeAdditionalHours(additionalHours, pricingRules)
+  const basePrice = calculateBasePrice(normalizedGuestCount, pricingRules)
+  const additionalHoursAmount = normalizedAdditionalHours * pricingRules.additionalHourPrice
+  const totalPrice = calculateTotalPrice(normalizedGuestCount, normalizedAdditionalHours, pricingRules)
 
   return {
     source: 'pricing-simulator',
@@ -36,8 +39,8 @@ export function createReservationPricingIntent(
     additionalHours: normalizedAdditionalHours,
     basePrice,
     additionalHoursAmount,
-    totalPrice: calculateTotalPrice(normalizedGuestCount, normalizedAdditionalHours),
-    depositAmount: publicPricingRules.depositAmount,
+    totalPrice,
+    depositAmount: calculateDepositAmount(totalPrice, pricingRules),
   }
 }
 
@@ -51,26 +54,31 @@ export function buildReservationIntentSearchParams(intent: ReservationPricingInt
 export function parseReservationPricingIntent(
   searchParams: URLSearchParams,
   locationState?: ReservationLocationState,
+  pricingRules: PublicPricingRules = publicPricingRules,
 ) {
   if (locationState?.pricingIntent?.source === 'pricing-simulator') {
     return createReservationPricingIntent(
       locationState.pricingIntent.guestCount,
       locationState.pricingIntent.additionalHours,
+      pricingRules,
     )
   }
 
   const guestCount = Number(searchParams.get('guest_count'))
   const additionalHours = Number(searchParams.get('additional_hours') ?? 0)
 
-  if (Number.isNaN(guestCount) || guestCount < publicPricingRules.minimumGuestCount) {
+  if (Number.isNaN(guestCount) || guestCount < pricingRules.minimumGuestCount) {
     return null
   }
 
-  return createReservationPricingIntent(guestCount, additionalHours)
+  return createReservationPricingIntent(guestCount, additionalHours, pricingRules)
 }
 
-export function buildReservationIntentMessage(intent: ReservationPricingIntent) {
-  const baseSchedule = `${publicPricingRules.baseSchedule.start} a ${publicPricingRules.baseSchedule.end}`
+export function buildReservationIntentMessage(
+  intent: ReservationPricingIntent,
+  pricingRules: PublicPricingRules = publicPricingRules,
+) {
+  const baseSchedule = `${pricingRules.baseSchedule.start} a ${pricingRules.baseSchedule.end}`
   const additionalHoursText =
     intent.additionalHours > 0
       ? `${intent.additionalHours} hora${intent.additionalHours === 1 ? '' : 's'} adicional${

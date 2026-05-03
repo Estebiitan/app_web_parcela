@@ -5,6 +5,8 @@ export type PropertyGalleryImage = {
   label: string
   caption: string
   area: string
+  objectPosition?: string
+  orientation: 'landscape' | 'square'
 }
 
 export const propertyGalleryImages: PropertyGalleryImage[] = [
@@ -15,6 +17,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Piscina principal',
     caption: 'Piscina amplia con jardines, reposeras y espacios para descansar durante la jornada.',
     area: 'Agua y descanso',
+    objectPosition: 'center 58%',
+    orientation: 'landscape',
   },
   {
     id: 'terraza-vista-piscina',
@@ -23,6 +27,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Terraza exterior',
     caption: 'Zona exterior con mesas, sombra y circulacion directa hacia las areas verdes.',
     area: 'Encuentro',
+    objectPosition: 'center center',
+    orientation: 'landscape',
   },
   {
     id: 'quincho-comedor',
@@ -31,6 +37,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Quincho techado',
     caption: 'Espacio techado para comidas, celebraciones y apoyo operativo del evento.',
     area: 'Comedor exterior',
+    objectPosition: 'center 46%',
+    orientation: 'landscape',
   },
   {
     id: 'jardin-trampolin',
@@ -39,6 +47,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Jardin amplio',
     caption: 'Jardines amplios para compartir, jugar y moverse con comodidad.',
     area: 'Aire libre',
+    objectPosition: 'center center',
+    orientation: 'landscape',
   },
   {
     id: 'cancha-palmeras',
@@ -47,6 +57,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Cancha',
     caption: 'Area deportiva y recreativa para actividades durante el arriendo.',
     area: 'Actividad',
+    objectPosition: 'center 54%',
+    orientation: 'landscape',
   },
   {
     id: 'piscina-atardecer',
@@ -55,6 +67,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Piscina al atardecer',
     caption: 'Un ambiente mas calido para mostrar la parcela cuando baja la luz.',
     area: 'Atardecer',
+    objectPosition: 'center 44%',
+    orientation: 'landscape',
   },
   {
     id: 'piscina-camastros',
@@ -63,6 +77,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Reposeras',
     caption: 'Zona de descanso junto a la piscina para pausas y conversacion.',
     area: 'Relax',
+    objectPosition: 'center 52%',
+    orientation: 'landscape',
   },
   {
     id: 'piscina-jardin',
@@ -71,6 +87,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Piscina y jardin',
     caption: 'Vista abierta de piscina y areas verdes para dimensionar el espacio.',
     area: 'Agua y jardin',
+    objectPosition: 'center center',
+    orientation: 'landscape',
   },
   {
     id: 'piscina-reposeras',
@@ -79,6 +97,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Piscina con sombra',
     caption: 'Reposeras y sombra para disfrutar la jornada con comodidad.',
     area: 'Descanso',
+    objectPosition: 'center 46%',
+    orientation: 'landscape',
   },
   {
     id: 'terraza-sombrillas',
@@ -87,6 +107,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Sombrillas',
     caption: 'Terraza equipada con mesas y sombrillas para grupos.',
     area: 'Terraza',
+    objectPosition: 'center 48%',
+    orientation: 'landscape',
   },
   {
     id: 'terraza-jardin',
@@ -95,6 +117,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Terraza jardin',
     caption: 'Un rincon exterior para conversar mirando las areas verdes.',
     area: 'Vista verde',
+    objectPosition: 'center 45%',
+    orientation: 'landscape',
   },
   {
     id: 'quincho-mesa-interior',
@@ -103,6 +127,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Mesa interior',
     caption: 'Mesa de apoyo para almuerzos, celebraciones y preparacion.',
     area: 'Quincho',
+    objectPosition: 'center 50%',
+    orientation: 'square',
   },
   {
     id: 'fachada-quincho-jardin',
@@ -111,6 +137,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Fachada quincho',
     caption: 'Vista exterior del quincho y su relacion con el jardin.',
     area: 'Infraestructura',
+    objectPosition: 'center center',
+    orientation: 'landscape',
   },
   {
     id: 'cabana-jardin',
@@ -119,6 +147,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Cabana y jardin',
     caption: 'Volumen construido rodeado de vegetacion y sombra natural.',
     area: 'Entorno',
+    objectPosition: 'center 42%',
+    orientation: 'square',
   },
   {
     id: 'jardin-arboles',
@@ -127,6 +157,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Jardin arbolado',
     caption: 'Vegetacion abundante que aporta privacidad y sensacion de descanso.',
     area: 'Naturaleza',
+    objectPosition: 'center center',
+    orientation: 'landscape',
   },
   {
     id: 'jardin-lateral',
@@ -135,6 +167,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Jardin lateral',
     caption: 'Areas verdes laterales para circulacion y actividades tranquilas.',
     area: 'Aire libre',
+    objectPosition: 'center center',
+    orientation: 'square',
   },
   {
     id: 'cancha-nublada',
@@ -143,6 +177,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Cancha amplia',
     caption: 'Espacio deportivo para actividades recreativas y juegos grupales.',
     area: 'Deporte',
+    objectPosition: 'center 54%',
+    orientation: 'landscape',
   },
   {
     id: 'acceso-palmeras',
@@ -151,6 +187,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Acceso con palmeras',
     caption: 'Ingreso exterior con vegetacion y amplitud visual.',
     area: 'Acceso',
+    objectPosition: 'center center',
+    orientation: 'square',
   },
   {
     id: 'acceso-palmeras-cancha',
@@ -159,6 +197,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Acceso a cancha',
     caption: 'Ingreso hacia la zona deportiva y areas abiertas.',
     area: 'Entrada',
+    objectPosition: 'center 50%',
+    orientation: 'landscape',
   },
   {
     id: 'estacionamiento-amplio',
@@ -167,6 +207,8 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Estacionamiento',
     caption: 'Zona exterior para recibir vehiculos de los invitados.',
     area: 'Llegada',
+    objectPosition: 'center 44%',
+    orientation: 'square',
   },
   {
     id: 'estacionamiento-montana',
@@ -175,33 +217,23 @@ export const propertyGalleryImages: PropertyGalleryImage[] = [
     label: 'Vista de llegada',
     caption: 'Llegada amplia con vegetacion y vista al entorno natural.',
     area: 'Llegada',
+    objectPosition: 'center 46%',
+    orientation: 'landscape',
   },
 ]
 
-export const propertyExperienceHighlights = [
-  {
-    title: 'Piscina y reposeras',
-    description: 'Un punto central para descansar, compartir y disfrutar la jornada.',
-  },
-  {
-    title: 'Terraza y quincho',
-    description: 'Espacios preparados para comer, conversar y organizar la celebracion.',
-  },
-  {
-    title: 'Jardines amplios',
-    description: 'Areas verdes con buena circulacion para grupos familiares y eventos.',
-  },
-  {
-    title: 'Cancha y juegos',
-    description: 'Zonas recreativas para que el arriendo se sienta completo y activo.',
-  },
+export const propertyHeroImageIds = [
+  'piscina-principal',
+  'terraza-vista-piscina',
+  'quincho-comedor',
+  'jardin-trampolin',
+  'piscina-atardecer',
+  'cancha-palmeras',
 ] as const
 
-export const propertyMosaicImageIds = [
-  'terraza-sombrillas',
-  'piscina-atardecer',
-  'fachada-quincho-jardin',
-  'jardin-arboles',
-  'cancha-nublada',
-  'estacionamiento-montana',
+export const propertyPreviewImageIds = [
+  'cancha-palmeras',
+  'jardin-lateral',
+  'quincho-comedor',
+  'estacionamiento-amplio',
 ] as const

@@ -73,6 +73,7 @@ function getInitialFormState({
 
 function validateReservationForm(
   formState: ReservationFormState,
+  minimumGuestCount: number,
   maxGuestCount: number | null | undefined,
 ) {
   const errors: ReservationFormErrors = {}
@@ -101,9 +102,9 @@ function validateReservationForm(
   if (
     !formState.guestCount ||
     Number.isNaN(guestCount) ||
-    guestCount < publicPricingRules.minimumGuestCount
+    guestCount < minimumGuestCount
   ) {
-    errors.guestCount = `Indica al menos ${publicPricingRules.minimumGuestCount} asistentes.`
+    errors.guestCount = `Indica al menos ${minimumGuestCount} asistentes.`
   } else if (maxGuestCount && guestCount > maxGuestCount) {
     errors.guestCount = `La parcela acepta hasta ${maxGuestCount} personas en la configuracion actual.`
   }
@@ -142,22 +143,24 @@ export function GuestReservationRequestPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
+  const { data: property } = usePropertyInfo()
+  const pricingRules = property?.pricing_rules ?? publicPricingRules
   const pricingIntent = useMemo(
     () =>
       parseReservationPricingIntent(
         searchParams,
         location.state as ReservationLocationState,
+        pricingRules,
       ),
-    [location.state, searchParams],
+    [location.state, pricingRules, searchParams],
   )
-  const { data: property } = usePropertyInfo()
   const [formState, setFormState] = useState(() =>
     getInitialFormState({
-      customerMessage: pricingIntent ? buildReservationIntentMessage(pricingIntent) : '',
+      customerMessage: pricingIntent ? buildReservationIntentMessage(pricingIntent, pricingRules) : '',
       endDate: searchParams.get('end_date') || '',
       guestCount: pricingIntent
         ? String(pricingIntent.guestCount)
-        : searchParams.get('guest_count') || String(publicPricingRules.minimumGuestCount),
+        : searchParams.get('guest_count') || String(pricingRules.minimumGuestCount),
       startDate: searchParams.get('start_date') || '',
     }),
   )
@@ -187,7 +190,11 @@ export function GuestReservationRequestPage() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const nextErrors = validateReservationForm(formState, property?.max_guest_count)
+    const nextErrors = validateReservationForm(
+      formState,
+      pricingRules.minimumGuestCount,
+      property?.max_guest_count,
+    )
     setFormErrors(nextErrors)
 
     if (Object.keys(nextErrors).length > 0) {
@@ -298,11 +305,11 @@ export function GuestReservationRequestPage() {
                   hint={
                     property?.max_guest_count
                       ? `Capacidad maxima configurada: ${property.max_guest_count} personas.`
-                      : `Minimo comercial del simulador: ${publicPricingRules.minimumGuestCount} personas.`
+                      : `Minimo comercial del simulador: ${pricingRules.minimumGuestCount} personas.`
                   }
                   id="reservation-guest-count"
                   label="Cantidad de asistentes"
-                  min={publicPricingRules.minimumGuestCount}
+                  min={pricingRules.minimumGuestCount}
                   onChange={(event) => updateField('guestCount', event.target.value)}
                   required
                   type="number"

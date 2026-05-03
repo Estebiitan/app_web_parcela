@@ -1,4 +1,23 @@
-export const publicPricingRules = {
+export type PublicPricingRules = {
+  currency: string
+  minimumGuestCount: number
+  visibleMaximumGuestCount: number
+  firstTierMaximumGuestCount: number
+  secondTierMaximumGuestCount: number
+  firstTierBasePrice: number
+  secondTierBasePrice: number
+  extraGuestPrice: number
+  baseSchedule: {
+    start: string
+    end: string
+  }
+  additionalHourPrice: number
+  maximumAdditionalHours: number
+  depositRate: number
+  simulatorMicrocopy: string
+}
+
+export const publicPricingRules: PublicPricingRules = {
   currency: 'CLP',
   minimumGuestCount: 10,
   visibleMaximumGuestCount: 60,
@@ -13,9 +32,6 @@ export const publicPricingRules = {
   },
   additionalHourPrice: 20000,
   maximumAdditionalHours: 3,
-  depositAmount: 20000,
-  simulatorMicrocopy:
-    'Las horas adicionales pueden solicitarse segun disponibilidad y confirmacion operativa.',
-} as const
-
-export type PublicPricingRules = typeof publicPricingRules
+  depositRate: 0.5,
+  simulatorMicrocopy: '',
+}

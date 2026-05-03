@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import PublicPropertyInfoView
+from .views import AdminPropertyInfoView, PublicPropertyInfoView
 
 urlpatterns = [
-    path('property/', PublicPropertyInfoView.as_view(), name='public-property-info'),
+    path('public/property/', PublicPropertyInfoView.as_view(), name='public-property-info'),
+    path('admin/property-settings/', AdminPropertyInfoView.as_view(), name='admin-property-settings'),
 ]
-

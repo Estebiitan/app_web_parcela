@@ -69,17 +69,32 @@ class ReservationStatusHistorySerializer(serializers.ModelSerializer):
 
 
 class PaymentReceiptSummarySerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+    uploaded_by_email = serializers.EmailField(source='uploaded_by.email', read_only=True)
+
     class Meta:
         model = PaymentReceipt
         fields = (
             'public_id',
+            'file_url',
             'amount',
             'currency',
             'payment_date',
             'reference_number',
             'review_status',
+            'uploaded_by_email',
             'created_at',
         )
+
+    def get_file_url(self, obj):
+        if not obj.file:
+            return ''
+
+        request = self.context.get('request')
+        file_url = obj.file.url
+        if request:
+            return request.build_absolute_uri(file_url)
+        return file_url
 
 
 class ReservationStatusSerializer(serializers.ModelSerializer):
@@ -121,6 +136,10 @@ class GuestReservationCreateResponseSerializer(serializers.Serializer):
 
 class AdminReservationListSerializer(serializers.ModelSerializer):
     customer = CurrentUserSerializer(read_only=True)
+    latest_payment_receipt = serializers.SerializerMethodField()
+    latest_payment_receipt_status = serializers.SerializerMethodField()
+    payment_receipts_count = serializers.SerializerMethodField()
+    status_label = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = Reservation
@@ -131,18 +150,40 @@ class AdminReservationListSerializer(serializers.ModelSerializer):
             'end_date',
             'guest_count',
             'status',
+            'status_label',
             'quoted_total_amount',
             'currency',
+            'customer_message',
             'expires_at',
             'status_updated_at',
             'created_at',
+            'payment_receipts_count',
+            'latest_payment_receipt_status',
+            'latest_payment_receipt',
         )
+
+    def get_payment_receipts_count(self, obj):
+        return obj.payment_receipts.count()
+
+    def get_latest_payment_receipt_status(self, obj):
+        receipt = obj.payment_receipts.first()
+        return receipt.review_status if receipt else ''
+
+    def get_latest_payment_receipt(self, obj):
+        receipt = obj.payment_receipts.first()
+        if not receipt:
+            return None
+        return PaymentReceiptSummarySerializer(receipt, context=self.context).data
 
 
 class AdminReservationDetailSerializer(serializers.ModelSerializer):
     customer = CurrentUserSerializer(read_only=True)
+    guest_contact_email = serializers.EmailField(source='guest_access.contact_email', read_only=True)
+    guest_contact_name = serializers.CharField(source='guest_access.contact_name', read_only=True)
+    guest_contact_phone = serializers.CharField(source='guest_access.contact_phone', read_only=True)
     status_history = ReservationStatusHistorySerializer(many=True, read_only=True)
     payment_receipts = PaymentReceiptSummarySerializer(many=True, read_only=True)
+    status_label = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = Reservation
@@ -153,9 +194,13 @@ class AdminReservationDetailSerializer(serializers.ModelSerializer):
             'end_date',
             'guest_count',
             'status',
+            'status_label',
             'quoted_total_amount',
             'currency',
             'customer_message',
+            'guest_contact_email',
+            'guest_contact_name',
+            'guest_contact_phone',
             'internal_notes',
             'status_reason',
             'expires_at',

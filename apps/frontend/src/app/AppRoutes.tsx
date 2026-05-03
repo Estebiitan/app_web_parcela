@@ -4,6 +4,8 @@ import { PublicAppShell } from '@/app/layouts/PublicAppShell'
 import { NotFoundPage } from '@/app/pages/NotFoundPage'
 import { DesignSystemPreviewPage } from '@/app/preview/DesignSystemPreviewPage'
 import { AvailabilityPage } from '@/modules/availability/pages/AvailabilityPage'
+import { AdminDashboardPage } from '@/modules/admin/pages/AdminDashboardPage'
+import { AdminLoginPage } from '@/modules/admin/pages/AdminLoginPage'
 import { GuestPaymentReceiptPage } from '@/modules/payments/pages/GuestPaymentReceiptPage'
 import { HomePage } from '@/modules/public-site/pages/HomePage'
 import { GuestReservationConfirmationPage } from '@/modules/reservations/pages/GuestReservationConfirmationPage'
@@ -23,6 +25,8 @@ export function AppRoutes() {
           <Route element={<GuestReservationStatusPage />} path="/seguimiento" />
           <Route element={<GuestPaymentReceiptPage />} path="/comprobante" />
         </Route>
+        <Route element={<AdminLoginPage />} path="/panel-admin/login" />
+        <Route element={<AdminDashboardPage />} path="/panel-admin" />
         <Route element={<DesignSystemPreviewPage />} path="/lab/design-system" />
         <Route element={<NotFoundPage />} path="*" />
       </Routes>

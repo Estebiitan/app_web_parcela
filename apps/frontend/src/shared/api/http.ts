@@ -145,6 +145,27 @@ export function postForm<TResponse>(path: string, formData: FormData, headers?: 
   })
 }
 
+export function patchJson<TResponse, TPayload>(
+  path: string,
+  payload: TPayload,
+  headers?: HeadersInit,
+) {
+  const finalHeaders = new Headers(headers)
+  finalHeaders.set('Content-Type', 'application/json')
+  return request<TResponse>(path, {
+    method: 'PATCH',
+    headers: finalHeaders,
+    body: JSON.stringify(payload),
+  })
+}
+
+export function deleteJson<TResponse = null>(path: string, headers?: HeadersInit) {
+  return request<TResponse>(path, {
+    method: 'DELETE',
+    headers,
+  })
+}
+
 export function getApiErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
     return error.message

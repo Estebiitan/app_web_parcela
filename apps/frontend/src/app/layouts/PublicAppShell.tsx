@@ -1,12 +1,12 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import { Badge, Container } from '@/design-system'
+import { Container } from '@/design-system'
 import { LinkButton } from '@/shared/ui/LinkButton'
 import { ThemeModeToggle } from '@/shared/theme/ThemeModeToggle'
 
 const navigationItems = [
   { label: 'Inicio', to: '/' },
-  { label: 'Disponibilidad', to: '/disponibilidad' },
+  { label: 'Disponibilidad', to: '/', hash: '#seccion-disponibilidad' },
   { label: 'Reservar', to: '/reservar' },
   { label: 'Seguimiento', to: '/seguimiento' },
   { label: 'Comprobante', to: '/comprobante' },
@@ -14,14 +14,24 @@ const navigationItems = [
 
 function getNavLinkClassName(isActive: boolean) {
   return [
-    'rounded-full border px-3 py-2 text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-swift ease-emphasized',
+    'nav-pill-link rounded-full border px-3 py-2 text-sm font-medium transition-[transform,background-color,border-color,color,box-shadow] duration-swift ease-emphasized',
     isActive
       ? 'border-border-strong/90 bg-panel-elevated/95 text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_14px_32px_rgba(0,0,0,0.18)]'
-      : 'border-transparent text-text-secondary hover:border-border-soft/90 hover:bg-panel-muted/80 hover:text-text-primary',
+      : 'border-transparent text-text-secondary hover:-translate-y-px hover:border-accent/35 hover:bg-panel-muted/88 hover:text-text-primary hover:shadow-[0_1rem_2.2rem_rgba(0,0,0,0.16)]',
   ].join(' ')
 }
 
 export function PublicAppShell() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  function isAvailabilityLinkActive() {
+    return (
+      location.pathname === '/disponibilidad' ||
+      (location.pathname === '/' && location.hash === '#seccion-disponibilidad')
+    )
+  }
+
   return (
     <div className="relative min-h-screen overflow-x-clip">
       <header className="sticky top-0 z-40 border-b border-border-soft/70 bg-canvas/78 backdrop-blur-xl">
@@ -45,18 +55,28 @@ export function PublicAppShell() {
 
             <nav className="flex flex-wrap items-center gap-1">
               {navigationItems.map((item) => (
-                <NavLink
-                  className={({ isActive }) => getNavLinkClassName(isActive)}
-                  key={item.to}
-                  to={item.to}
-                >
-                  {item.label}
-                </NavLink>
+                item.hash ? (
+                  <button
+                    className={getNavLinkClassName(isAvailabilityLinkActive())}
+                    key={`${item.to}${item.hash}`}
+                    onClick={() => navigate({ hash: item.hash, pathname: item.to })}
+                    type="button"
+                  >
+                    {item.label}
+                  </button>
+                ) : (
+                  <NavLink
+                    className={({ isActive }) => getNavLinkClassName(isActive)}
+                    key={item.to}
+                    to={item.to}
+                  >
+                    {item.label}
+                  </NavLink>
+                )
               ))}
             </nav>
 
             <div className="flex items-center gap-3">
-              <Badge tone="accent">Invitado 1</Badge>
               <LinkButton to="/reservar">Reservar</LinkButton>
             </div>
           </div>
